@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Mohamed &amp; Jewidan — RSVP Dashboard</title>
+<style>
+  :root {
+    --maroon: #8b3242;
+    --maroon-dark: #73272d;
+    --cream: #fffdfb;
+    --border: #e6d9d4;
+    --text: #3a3a3a;
+    --muted: #9a7d7f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #f8f1ee;
+    color: var(--text);
+    font-family: Georgia, 'Times New Roman', serif;
+    min-height: 100vh;
+  }
+  .wrap {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+  }
+  .brand {
+    text-align: center;
+    margin-bottom: 36px;
+  }
+  .brand h1 {
+    font-size: 30px;
+    letter-spacing: 1px;
+    color: var(--maroon-dark);
+    margin: 0 0 6px;
+  }
+  .brand p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 14px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  /* Login gate */
+  #loginView {
+    max-width: 380px;
+    margin: 60px auto 0;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 36px 32px;
+    box-shadow: 0 18px 45px rgba(60,20,25,0.1);
+  }
+  #loginView h2 {
+    margin: 0 0 18px;
+    font-size: 20px;
+    text-align: center;
+    color: var(--maroon-dark);
+  }
+  .field label {
+    display: block;
+    font-size: 13px;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  .field input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #d9c9c5;
+    border-radius: 8px;
+    font-family: Georgia, serif;
+    font-size: 15px;
+    background: var(--cream);
+  }
+  .field input:focus { outline: none; border-color: var(--maroon); box-shadow: 0 0 0 3px rgba(139,50,66,0.12); }
+  .btn {
+    display: inline-block;
+    border: none;
+    cursor: pointer;
+    background: var(--maroon);
+    color: #fff;
+    font-family: Georgia, serif;
+    font-size: 15px;
+    padding: 12px 22px;
+    border-radius: 24px;
+    transition: background .2s ease;
+  }
+  .btn:hover { background: var(--maroon-dark); }
+  .btn:disabled { opacity: .6; cursor: not-allowed; }
+  .btn.full { width: 100%; margin-top: 6px; }
+  .btn.ghost {
+    background: transparent;
+    color: var(--maroon-dark);
+    border: 1px solid var(--border);
+  }
+  .btn.ghost:hover { background: #fbeeee; }
+  .error-text { color: #a13636; font-size: 13px; margin-top: 12px; text-align: center; min-height: 16px; }
+
+  /* Dashboard */
+  #dashboardView { display: none; }
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+  .search {
+    flex: 1;
+    min-width: 200px;
+    padding: 11px 14px;
+    border: 1px solid #d9c9c5;
+    border-radius: 8px;
+    font-family: Georgia, serif;
+    font-size: 14px;
+    background: #fff;
+  }
+  .stats {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .stat-card {
+    flex: 1;
+    min-width: 160px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 20px;
+    text-align: center;
+    box-shadow: 0 10px 28px rgba(60,20,25,0.06);
+  }
+  .stat-card .num {
+    font-size: 32px;
+    color: var(--maroon-dark);
+    font-weight: 700;
+  }
+  .stat-card .lbl {
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .list { display: flex; flex-direction: column; gap: 14px; }
+  .card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 22px;
+    box-shadow: 0 10px 28px rgba(60,20,25,0.06);
+  }
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+  .card-name {
+    font-size: 18px;
+    color: var(--maroon-dark);
+    font-weight: 700;
+  }
+  .card-date {
+    font-size: 12px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .card-message {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--text);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .card-actions {
+    margin-top: 12px;
+    text-align: right;
+  }
+  .link-btn {
+    background: none;
+    border: none;
+    color: #a13636;
+    font-family: Georgia, serif;
+    font-size: 13px;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 4px;
+  }
+  .empty, .loading {
+    text-align: center;
+    color: var(--muted);
+    padding: 60px 20px;
+    font-size: 15px;
+  }
+  .top-actions { display: flex; gap: 10px; }
+  @media screen and (max-width: 560px) {
+    .toolbar { flex-direction: column; align-items: stretch; }
+    .top-actions { justify-content: flex-end; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">
+    <h1>Mohamed &amp; Jewidan</h1>
+    <p>RSVP Dashboard</p>
+  </div>
+
+  <div id="loginView">
+    <h2>Enter Admin Key</h2>
+    <div class="field">
+      <label for="adminKeyInput">Admin key</label>
+      <input type="password" id="adminKeyInput" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="btn full" id="loginBtn">Unlock Dashboard</button>
+    <div class="error-text" id="loginError"></div>
+  </div>
+
+  <div id="dashboardView">
+    <div class="toolbar">
+      <input type="text" class="search" id="searchInput" placeholder="Search by name or message...">
+      <div class="top-actions">
+        <button class="btn ghost" id="refreshBtn">Refresh</button>
+        <button class="btn ghost" id="logoutBtn">Log out</button>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat-card">
+        <div class="num" id="statTotal">0</div>
+        <div class="lbl">Total Wishes</div>
+      </div>
+      <div class="stat-card">
+        <div class="num" id="statToday">0</div>
+        <div class="lbl">Today</div>
+      </div>
+    </div>
+    <div class="list" id="list"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var STORAGE_KEY = 'wedding_admin_key';
+  var loginView = document.getElementById('loginView');
+  var dashboardView = document.getElementById('dashboardView');
+  var adminKeyInput = document.getElementById('adminKeyInput');
+  var loginBtn = document.getElementById('loginBtn');
+  var loginError = document.getElementById('loginError');
+  var searchInput = document.getElementById('searchInput');
+  var refreshBtn = document.getElementById('refreshBtn');
+  var logoutBtn = document.getElementById('logoutBtn');
+  var listEl = document.getElementById('list');
+  var statTotal = document.getElementById('statTotal');
+  var statToday = document.getElementById('statToday');
+
+  var allEntries = [];
+
+  function fetchEntries(key) {
+    return fetch('/api/rsvp', { headers: { 'x-admin-key': key } })
+      .then(function (res) {
+        if (res.status === 401) throw new Error('unauthorized');
+        if (!res.ok) throw new Error('failed');
+        return res.json();
+      });
+  }
+
+  function formatDate(iso) {
+    try {
+      var d = new Date(iso);
+      return d.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+    } catch (e) {
+      return '';
+    }
+  }
+
+  function isToday(iso) {
+    var d = new Date(iso);
+    var now = new Date();
+    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
+  }
+
+  function render(entries) {
+    listEl.innerHTML = '';
+    if (!entries.length) {
+      var empty = document.createElement('div');
+      empty.className = 'empty';
+      empty.textContent = 'No wishes yet.';
+      listEl.appendChild(empty);
+      return;
+    }
+    entries.forEach(function (entry) {
+      var card = document.createElement('div');
+      card.className = 'card';
+
+      var top = document.createElement('div');
+      top.className = 'card-top';
+
+      var name = document.createElement('div');
+      name.className = 'card-name';
+      name.textContent = entry.name;
+
+      var date = document.createElement('div');
+      date.className = 'card-date';
+      date.textContent = formatDate(entry.createdAt);
+
+      top.appendChild(name);
+      top.appendChild(date);
+
+      var msg = document.createElement('div');
+      msg.className = 'card-message';
+      msg.textContent = entry.message;
+
+      var actions = document.createElement('div');
+      actions.className = 'card-actions';
+      var delBtn = document.createElement('button');
+      delBtn.className = 'link-btn';
+      delBtn.textContent = 'Delete';
+      delBtn.addEventListener('click', function () {
+        if (!confirm('Delete this wish from ' + entry.name + '?')) return;
+        var key = sessionStorage.getItem(STORAGE_KEY);
+        fetch('/api/rsvp?id=' + encodeURIComponent(entry._id), {
+          method: 'DELETE',
+          headers: { 'x-admin-key': key }
+        }).then(function (res) {
+          if (res.ok) load();
+        });
+      });
+      actions.appendChild(delBtn);
+
+      card.appendChild(top);
+      card.appendChild(msg);
+      card.appendChild(actions);
+      listEl.appendChild(card);
+    });
+  }
+
+  function updateStats(entries) {
+    statTotal.textContent = entries.length;
+    statToday.textContent = entries.filter(function (e) { return isToday(e.createdAt); }).length;
+  }
+
+  function applyFilter() {
+    var q = searchInput.value.trim().toLowerCase();
+    if (!q) return render(allEntries);
+    render(allEntries.filter(function (e) {
+      return e.name.toLowerCase().indexOf(q) !== -1 || e.message.toLowerCase().indexOf(q) !== -1;
+    }));
+  }
+
+  function load() {
+    var key = sessionStorage.getItem(STORAGE_KEY);
+    if (!key) return showLogin();
+    listEl.innerHTML = '<div class="loading">Loading...</div>';
+    fetchEntries(key)
+      .then(function (payload) {
+        allEntries = payload.data || [];
+        updateStats(allEntries);
+        applyFilter();
+        showDashboard();
+      })
+      .catch(function (err) {
+        sessionStorage.removeItem(STORAGE_KEY);
+        showLogin(err.message === 'unauthorized' ? 'Incorrect admin key.' : 'Could not load RSVPs.');
+      });
+  }
+
+  function showLogin(message) {
+    loginView.style.display = 'block';
+    dashboardView.style.display = 'none';
+    loginError.textContent = message || '';
+  }
+
+  function showDashboard() {
+    loginView.style.display = 'none';
+    dashboardView.style.display = 'block';
+  }
+
+  loginBtn.addEventListener('click', function () {
+    var key = adminKeyInput.value.trim();
+    if (!key) return;
+    loginBtn.disabled = true;
+    loginBtn.textContent = 'Checking...';
+    fetchEntries(key)
+      .then(function (payload) {
+        sessionStorage.setItem(STORAGE_KEY, key);
+        allEntries = payload.data || [];
+        updateStats(allEntries);
+        applyFilter();
+        showDashboard();
+      })
+      .catch(function (err) {
+        loginError.textContent = err.message === 'unauthorized' ? 'Incorrect admin key.' : 'Could not connect.';
+      })
+      .finally(function () {
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Unlock Dashboard';
+      });
+  });
+
+  adminKeyInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') loginBtn.click();
+  });
+
+  refreshBtn.addEventListener('click', load);
+  searchInput.addEventListener('input', applyFilter);
+  logoutBtn.addEventListener('click', function () {
+    sessionStorage.removeItem(STORAGE_KEY);
+    showLogin();
+  });
+
+  load();
+})();
+</script>
+</body>
+</html>

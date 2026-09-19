@@ -1,0 +1,12 @@
+{
+  "name": "mohamed-jewidan-wedding",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Mohamed & Jewidan wedding invitation with RSVP API and admin dashboard",
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "mongodb": "^6.10.0"
+  }
+}
